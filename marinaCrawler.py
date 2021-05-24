@@ -17,11 +17,13 @@ option = webdriver.ChromeOptions()
 option.add_experimental_option('useAutomationExtension', False)
 option.add_experimental_option('excludeSwitches', ['enable-automation'])
 url = 'https://www.instagram.com/marinanagasawa1008/'
+IGurl = 'https://www.instagram.com'
 chromedriver_path = r"C:\Users\Kaiku\Desktop\crawler\spider\chromedriver.exe"
 
 browser = webdriver.Chrome(executable_path=chromedriver_path,chrome_options=option)
 soup = Soup(browser.page_source, "html.parser")
 media_url = []
+finalall_url = []
 
 
 
@@ -30,17 +32,81 @@ def openchrome():
 
 def main():
     browser.get(url)
+    browser.page_source
     soup = Soup(browser.page_source, "html.parser")
-    data = soup.find_all(class_="KL4Bh")[1].img.get('src')
-    # for i in data:
-    #     img_frame = i.img.get('src')
-    #     media_url.append(img_frame)
-    img_frame = requests.get(data)
+    
+    # get all browser post url
+    for i in soup.find_all('a', href = True):
+        if i['href'].startswith('/p/'):
+            print('Link found : {0}'.format(i['href']))
+            media_url.append(IGurl + i['href'])
+    
+    count = 0
+    
+    #獲得每個貼文的img
+    for i in media_url:
+        browser.get(i)
+        browser.page_source
+        soup = Soup(browser.page_source, "html.parser")
+        
+
+        img_frame = soup.find_all(class_="Ckrof")
+        for i in img_frame:
+                try:
+                    new_img = i.img.get('src')
+                    if (new_img != None) & (new_img not in media_url):
+                        finalall_url.append(new_img)
+                        count += 1
+                except:
+                    pass
+        print(count)
+    
+    # print(finalall_url)
+
+
+
+    # 儲存檔案
     if not os.path.exists("marina"):
         os.mkdir("marina")
 
-    with open("marina\\" + "marinaImg" + str(2) + ".jpg", "wb") as file:  # 開啟資料夾及命名圖片檔
-        file.write(img_frame.content)
+    num = 0
+    for i in finalall_url:
+        image = requests.get(i)
+        with open("marina\\" + "marinaImg" + str(num) + ".jpg", "wb") as file:  # 開啟資料夾及命名圖片檔
+            file.write(image.content)
+        num+=1
+    # imgsrc = soup.find_all('div',class_="KL4Bh").img.get('src')
+    
+
+    # try:
+    #     WebDriverWait(browser, 5).until(EC.presence_of_element_located((By.CLASS_NAME, '_6CZji')))
+    #     button = browser.find_elements_by_class_name('_6CZji')[0]
+    #     button.click()
+    #     print('..............')
+    # except:
+    #     button = None
+    #     print('33333')
+
+    # soup = Soup(browser.page_source, "html.parser")
+    # imgsrc = soup.find('div',class_="KL4Bh").img.get('src')
+    # print(imgsrc)
+
+    # imgUrl = post.img.get('src')
+    # media_url.append(imgUrl)
+    
+    # for i in data:
+    #     img_frame = i.img.get('src')
+    #     media_url.append(img_frame)
+    # print(data)
+    # img_frame = requests.get(data)
+    
+    
+    
+
+    
+
+
+    
 
 
     
@@ -131,7 +197,7 @@ if __name__ == '__main__':
     openchrome()
     login()
     main()
-    print(media_url)
+    # print(media_url)
     
 
 
