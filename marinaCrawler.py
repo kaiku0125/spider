@@ -7,6 +7,9 @@ from bs4 import BeautifulSoup as Soup
 import os
 import time
 import requests
+import sys
+
+from urllib3.packages.six import b
 
 IG_USERNAME='pianoprince0125@yahoo.com.tw'
 IG_PASSWORD='linkevin'
@@ -16,7 +19,8 @@ option = webdriver.ChromeOptions()
 
 option.add_experimental_option('useAutomationExtension', False)
 option.add_experimental_option('excludeSwitches', ['enable-automation'])
-url = 'https://www.instagram.com/marinanagasawa1008/'
+url = 'https://www.instagram.com/coco20002/'
+
 IGurl = 'https://www.instagram.com'
 chromedriver_path = r"C:\Users\Kaiku\Desktop\crawler\spider\chromedriver.exe"
 
@@ -48,23 +52,48 @@ def main():
         browser.get(i)
         browser.page_source
         soup = Soup(browser.page_source, "html.parser")
+        time.sleep(1)
+        # button = browser.find_element_by_class_name('_6CZji')
+        try:
+            WebDriverWait(browser, 5).until(EC.presence_of_element_located((By.CLASS_NAME, '_6CZji')))
+            button = browser.find_elements_by_class_name('_6CZji')[0]
+            
+        except:
+            button = None
         
+        if button == None:
+            soup = Soup(browser.page_source, "html.parser")
+            img_frame = soup.find(class_="KL4Bh")
+            try:
+                new_img = img_frame.img.get('src')
+                if (new_img != None):
+                    finalall_url.append(new_img)
+                    count += 1
+                    print(count)
+            except:
+                pass
 
-        img_frame = soup.find_all(class_="Ckrof")
-        for i in img_frame:
-                try:
-                    new_img = i.img.get('src')
-                    if (new_img != None) & (new_img not in media_url):
-                        finalall_url.append(new_img)
-                        count += 1
-                except:
-                    pass
-        print(count)
-    
-    # print(finalall_url)
-
-
-
+        # 進入post之後，每一秒按一次直到沒有下一頁按鈕為止
+        # 並將得到的URL儲存在finalall_url之中
+        while button!= None:
+            soup = Soup(browser.page_source, "html.parser")
+            time.sleep(1)
+            try:
+                img_frame = soup.find_all(class_="Ckrof")
+                for i in img_frame:
+                    try:
+                        new_img = i.img.get('src')
+                        if (new_img != None) & (new_img not in finalall_url):
+                            finalall_url.append(new_img)
+                            count += 1
+                            print(count)
+                    except:
+                        pass
+                button.click()
+            except:
+                break
+        
+            
     # 儲存檔案
     if not os.path.exists("marina"):
         os.mkdir("marina")
@@ -75,82 +104,7 @@ def main():
         with open("marina\\" + "marinaImg" + str(num) + ".jpg", "wb") as file:  # 開啟資料夾及命名圖片檔
             file.write(image.content)
         num+=1
-    # imgsrc = soup.find_all('div',class_="KL4Bh").img.get('src')
-    
 
-    # try:
-    #     WebDriverWait(browser, 5).until(EC.presence_of_element_located((By.CLASS_NAME, '_6CZji')))
-    #     button = browser.find_elements_by_class_name('_6CZji')[0]
-    #     button.click()
-    #     print('..............')
-    # except:
-    #     button = None
-    #     print('33333')
-
-    # soup = Soup(browser.page_source, "html.parser")
-    # imgsrc = soup.find('div',class_="KL4Bh").img.get('src')
-    # print(imgsrc)
-
-    # imgUrl = post.img.get('src')
-    # media_url.append(imgUrl)
-    
-    # for i in data:
-    #     img_frame = i.img.get('src')
-    #     media_url.append(img_frame)
-    # print(data)
-    # img_frame = requests.get(data)
-    
-    
-    
-
-    
-
-
-    
-
-
-    
-    # if soup.find(class_ = 'KL48h' != None):
-    #     print('KL48h != None')
-    #     soup = Soup(browser.page_source,'html.parser')
-    #     print(soup)
-    #     print('1--------------------------')
-    #     img_frame = soup.find_all("div",class_ = "KL48h")
-    #     print(img_frame)
-    #     print('2------------------------------')
-    #     for i in img_frame:
-    #         try:
-    #             data = img_frame.img.get("src")
-    #             print(data)
-    #             print('3-----------------------------------')
-    #             media_url.append(data)
-    #             print('0000')
-    #         except:
-    #             print('11111')
-
-        # button = 1
-        # while button != None:
-        #     soup = Soup(browser.page_source,'html.parser')
-        #     time.sleep(1)
-        #     img_frame = soup.find_all(class_ = "CKrof")
-        #     for i in img_frame:
-        #         try:
-        #             new_img = i.img.get('src')
-        #             if new_img != None & new_img not in media_url:
-        #                 media_url.append(new_img)
-        #                 count += 1
-        #         except:
-        #             print('some error')
-
-    # else:
-    #     soup = Soup(browser.page_source,'html.parser')
-    #     print('2222')
-
-
-
-    # browser.get(url)
-    
-    # data = soup.find_all(class_="KL4Bh")[0].img.get('src')
     
 
 def login():
