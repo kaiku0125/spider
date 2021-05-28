@@ -14,7 +14,7 @@ import math
 from urllib3.packages.six import b
 
 IG_USERNAME='pianoprince0125@gmail.com'
-IG_PASSWORD='linkevin'
+IG_PASSWORD='yourpassword'
 # 步驟1: 改targetUrl
 # 步驟2: 改scrolling的次數區間
 # 步驟3: 改儲存名稱
@@ -90,7 +90,7 @@ def main():
         browser.page_source
         soup = Soup(browser.page_source, "html.parser")
         # get all browser post url
-        if wait > 5:
+        if wait > 10:
             for i in soup.find_all('a', href = True):
                 if i['href'].startswith('/p/'):
                     print('Link found : {0}'.format(i['href']))
@@ -100,7 +100,7 @@ def main():
         if lastCount==lenOfPage:
             scroll=False
         
-        if wait == 10:
+        if wait == 15:
             scroll =False
 
         print('scrolling page :' + str(wait))
@@ -167,13 +167,13 @@ def main():
     if not os.path.exists("marina"):
         os.mkdir("marina")
 
-    num = 195
+    num = 402
     for i in finalall_url:
         image = requests.get(i)
         with open("marina\\" + "marinaImg" + str(num) + ".jpg", "wb") as file:  # 開啟資料夾及命名圖片檔
             file.write(image.content)
         num+=1
-        progressbar(num,count)
+        progressbar(num,count+num)
         time.sleep(0.25)
 
     # pbar.finish()
