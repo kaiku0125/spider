@@ -11,17 +11,19 @@ import sys
 import progressbar
 import math
 
-
 from urllib3.packages.six import b
 
-IG_USERNAME='pianoprince0125@yahoo.com.tw'
+IG_USERNAME='pianoprince0125@gmail.com'
 IG_PASSWORD='linkevin'
+# 步驟1: 改targetUrl
+# 步驟2: 改scrolling的次數區間
+# 步驟3: 改儲存名稱
 
 # 加启动配置
 option = webdriver.ChromeOptions()
 option.add_experimental_option('useAutomationExtension', False)
 option.add_experimental_option('excludeSwitches', ['enable-automation'])
-url = 'https://www.instagram.com/coco20002/' #targetUrl
+url = 'https://www.instagram.com/marinanagasawa1008' #targetUrl
 IGurl = 'https://www.instagram.com'
 chromedriver_path = r"C:\Users\Kaiku\Desktop\crawler\spider\chromedriver.exe"
 
@@ -81,27 +83,26 @@ def main():
     scroll = True
     while scroll == True:
         lastCount = lenOfPage
-        time.sleep(3)
+        time.sleep(4)
         wait +=1
         lenOfPage = browser.execute_script("window.scrollTo(0, document.body.scrollHeight);var lenOfPage=document.body.scrollHeight;return lenOfPage;")
         
         browser.page_source
         soup = Soup(browser.page_source, "html.parser")
         # get all browser post url
-        for i in soup.find_all('a', href = True):
-            if i['href'].startswith('/p/'):
-                print('Link found : {0}'.format(i['href']))
-                if i['href'] not in media_url:
-                    media_url.append(IGurl + i['href'])
+        if wait > 5:
+            for i in soup.find_all('a', href = True):
+                if i['href'].startswith('/p/'):
+                    print('Link found : {0}'.format(i['href']))
+                    if i['href'] not in media_url:
+                        media_url.append(IGurl + i['href'])
         
         if lastCount==lenOfPage:
             scroll=False
         
-        if wait == 20:
+        if wait == 10:
             scroll =False
 
-
-        
         print('scrolling page :' + str(wait))
 
         # browser.execute_script("window.scrollTo(0,4000);")
@@ -120,15 +121,15 @@ def main():
         browser.get(i)
         browser.page_source
         soup = Soup(browser.page_source, "html.parser")
-        time.sleep(1)
-        # button = browser.find_element_by_class_name('_6CZji')
+        time.sleep(2)
         try:
             WebDriverWait(browser, 3).until(EC.presence_of_element_located((By.CLASS_NAME, '_6CZji')))
             button = browser.find_elements_by_class_name('_6CZji')[0]
             
         except:
             button = None
-        
+
+        # 只有1張
         if button == None:
             soup = Soup(browser.page_source, "html.parser")
             img_frame = soup.find(class_="KL4Bh")
@@ -166,7 +167,7 @@ def main():
     if not os.path.exists("marina"):
         os.mkdir("marina")
 
-    num = 0
+    num = 195
     for i in finalall_url:
         image = requests.get(i)
         with open("marina\\" + "marinaImg" + str(num) + ".jpg", "wb") as file:  # 開啟資料夾及命名圖片檔
